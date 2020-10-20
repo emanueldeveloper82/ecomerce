@@ -26,14 +26,14 @@ public class SwaggerConfig {
 	@Bean
 	public Docket api() {
 		return new Docket(DocumentationType.SWAGGER_2).select()
-				.apis(RequestHandlerSelectors.basePackage("br.com.eps.pontointeligente.api.controllers"))
+				.apis(RequestHandlerSelectors.basePackage("br.com.eds.ecomerce.api.controllers"))
 				.paths(PathSelectors.any()).build()
 				.apiInfo(apiInfo());
 	}
 
 	private ApiInfo apiInfo() {
-		return new ApiInfoBuilder().title("Ponto Eletrônico API") 
-				.description("Documentação da API de acesso aos endpoints do Ponto Eletrônico.")
+		return new ApiInfoBuilder().title("E-Comerce API")
+				.description("Documentação da API de acesso aos endpoints do e-comerce.")
 				.version("1.0")
 				.license("Apache License Version 2.0")
 				.licenseUrl("https://www.apache.org/licenses/LICENSE-2.0\"")
