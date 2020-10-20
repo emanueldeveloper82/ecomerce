@@ -15,10 +15,7 @@ import java.time.LocalDate;
 @ToString
 public class ClienteDto {
 	private Long id;
-	@NotBlank(message = "O nome do Cliente Não pode ser vazio.")
 	private String nome;
-	@NotBlank(message = "A data de cadastro não pode ser vazia.")
 	private LocalDate dataCadastro;
-	@NotBlank(message = "O status não pode ser vazio}")
 	private StatusEnum status;
 }
