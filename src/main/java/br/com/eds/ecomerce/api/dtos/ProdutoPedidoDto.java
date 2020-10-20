@@ -15,6 +15,5 @@ import javax.validation.constraints.NotBlank;
 public class ProdutoPedidoDto {
     private Long id;
     private ProdutoDto produto;
-    @NotBlank(message = "A quantidade não pode ser vazia.")
     private Integer quantidade;
 }
