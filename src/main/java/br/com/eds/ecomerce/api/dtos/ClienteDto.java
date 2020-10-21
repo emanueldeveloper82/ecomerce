@@ -5,8 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-
-import javax.validation.constraints.NotBlank;
 import java.time.LocalDate;
 
 @Data

@@ -1,6 +1,5 @@
 package br.com.eds.ecomerce.api.dtos;
 
-import br.com.eds.ecomerce.api.entity.ProdutoPedido;
 import br.com.eds.ecomerce.api.enums.StatusEntregaEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;

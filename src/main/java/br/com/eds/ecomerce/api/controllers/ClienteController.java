@@ -106,7 +106,8 @@ public class ClienteController {
 					response.setData(this.converterPedidoParaDto(pedido));
 				}
 			} else {
-				return ResponseEntity.badRequest().body(response);
+				throw new BadRequestException("Cliente não possui um pedido. Nome: "
+						+ cliente.get().getNome());
 			}
 		} else {
 			log.info("Cliente não localizado pelo id: {}", id);
