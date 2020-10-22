@@ -5,8 +5,8 @@ import lombok.Getter;
 public enum StatusEntregaEnum {
 
 	ENTREGUE("Entregue"),
-	CANCELADO("Pendente"),
-	PENDENTE("Cancelado");
+	CANCELADO("Cancelado"),
+	PENDENTE("Pendente");
 
 	@Getter
 	private final String status;

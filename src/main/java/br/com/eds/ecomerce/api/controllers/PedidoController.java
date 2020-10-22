@@ -10,7 +10,9 @@ import br.com.eds.ecomerce.api.entity.Produto;
 import br.com.eds.ecomerce.api.entity.ProdutoPedido;
 import br.com.eds.ecomerce.api.enums.StatusEntregaEnum;
 import br.com.eds.ecomerce.api.response.Response;
+import br.com.eds.ecomerce.api.services.ClienteService;
 import br.com.eds.ecomerce.api.services.PedidoService;
+import br.com.eds.ecomerce.api.services.ProdutoService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
@@ -24,9 +26,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
-import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Optional;
 
 /**
  * Controller de Cliente.
@@ -44,6 +46,12 @@ public class PedidoController {
 	@Autowired
 	private PedidoService pedidoService;
 
+	@Autowired
+	private ClienteService clienteService;
+
+	@Autowired
+	private ProdutoService produtoService;
+
 	/**
 	 * Cadastrar um pedido.
 	 * @param pedidoDto
@@ -55,9 +63,48 @@ public class PedidoController {
 	public ResponseEntity<Response<PedidoDto>> inserirPedido(@Valid @RequestBody PedidoDto pedidoDto,
 															 BindingResult result)  {
 
-		log.info("Cadastrando um pedido para o cliente: {}", pedidoDto.getCliente().getNome());
-
+		log.info("Cadastrando um pedido para o cliente");
 		Response<PedidoDto> response = new Response<>();
+
+		/** Verifica se existe cliente cadastro */
+		Optional<Cliente> cliente = this.clienteService.findById(pedidoDto.getCliente().getId());
+		if (cliente.isPresent()) {
+			log.info("Cliente {} já existente.", cliente.get().getNome());
+			pedidoDto.setCliente(this.converterClienteParaDto(cliente.get()));
+		}
+		else {
+			//TODO: Cadastrar novo cliente e depois seguir com o pedido. Verificar isso depois
+			clienteService.persistir(this.converterDtoParaCliente(pedidoDto.getCliente()));
+		}
+
+		/** Verifica se existe pedido cadastro */
+//		if (pedidoDto.getId() != null) {
+//			Optional<Pedido> pedido = pedidoService.findById(pedidoDto.getId());
+//			if (pedido.isPresent()) {
+//				log.info("Pedido Nº {} localizado.", pedido.get().getId());
+//				if (StatusEntregaEnum.ENTREGUE.equals(pedido.get().getStatusEntrega())) {
+//					log.info("Pedido Nº {} já Finalizado.", pedido.get().getId());
+//					//TODO: Retornar erro;
+//				}
+//				if (StatusEntregaEnum.CANCELADO.equals(pedido.get().getStatusEntrega())) {
+//					log.info("Pedido Nº {} cancelado.", pedido.get().getId());
+//					//TODO: Retornar erro;
+//				}
+//				pedidoDto = this.converterPedidoParaDto(pedido.get());
+//			}
+//		}
+
+		/** Verifica se existe produto dentro do pedido cadastrado */
+		//TODO: Verificar se existe o produto dentro do pedido, caso exista,
+		// somar as quantidades existentes com a de cadastro;
+//		Optional<Produto> produto = produtoService.findById(pedidoDto.getId());
+//		if (produto.isPresent()) {
+//			pedidoDto.setProdutoPedidos();
+//
+//		}
+
+
+
 
 		Pedido pedido = this.converterDtoParaPedido(pedidoDto);
 
@@ -80,7 +127,8 @@ public class PedidoController {
 		pedido.setDataCadastro(pedidoDto.getDataCadastro());
 		pedido.setStatusEntrega(pedidoDto.getStatusEntrega());
 
-		if (!pedidoDto.getProdutoPedidos().isEmpty()) {
+		if (pedidoDto.getProdutoPedidos() != null
+				&& !pedidoDto.getProdutoPedidos().isEmpty()) {
 			pedidoDto.setProdutoPedidos(new ArrayList<>());
 			for (ProdutoPedidoDto produtoPedidoDto : pedidoDto.getProdutoPedidos()) {
 				pedido.getProdutoPedidos().add((this.converterDtoParaProdutoPedido(produtoPedidoDto)));
@@ -93,6 +141,7 @@ public class PedidoController {
 	private Cliente converterDtoParaCliente(ClienteDto clienteDto) {
 		log.info("Convertenndo dados do DTo para Cliente Nome: {}", clienteDto.getNome());
 		Cliente cliente = new Cliente();
+		cliente.setId(clienteDto.getId());
 		cliente.setNome(clienteDto.getNome());
 		cliente.setDataCadastro(LocalDate.now());
 		cliente.setStatus(clienteDto.getStatus());
@@ -142,8 +191,33 @@ public class PedidoController {
 	}
 
 
+	private ClienteDto converterClienteParaDto(Cliente cliente) {
+		log.info("Convertenndo dados do Cliente para um DTO Nome: {}", cliente.getNome());
+		ClienteDto clienteDto = new ClienteDto();
+		clienteDto.setId(cliente.getId());
+		clienteDto.setNome(cliente.getNome());
+		clienteDto.setDataCadastro(cliente.getDataCadastro());
+		clienteDto.setStatus(cliente.getStatus());
+		return clienteDto;
+	}
 
 
+	private PedidoDto converterPedidoParaDto(Pedido pedido) {
+		log.info("Convertenndo dados do DTo para Cliente Nome: {}", pedido.getId());
+		PedidoDto pedidoDto = new PedidoDto();
+		pedidoDto.setId(pedido.getId());
+		pedidoDto.setDataCadastro(pedido.getDataCadastro());
+		pedidoDto.setStatusEntrega(pedido.getStatusEntrega());
+		pedidoDto.setCliente(this.converterClienteParaDto(pedido.getCliente()));
+
+		if (!pedido.getProdutoPedidos().isEmpty()) {
+			pedidoDto.setProdutoPedidos(new ArrayList<>());
+			for (ProdutoPedido produtoPedido : pedido.getProdutoPedidos()) {
+				pedidoDto.getProdutoPedidos().add((this.converterProdutoPedidoParaDto(produtoPedido)));
+			}
+		}
+		return pedidoDto;
+	}
 
 
 }
